@@ -26,6 +26,7 @@ public class Log {
     private void configugeLog4j() {
         Logger rootLogger = Logger.getRootLogger();
         rootLogger.removeAllAppenders();
+        rootLogger.setLevel(Level.ALL);
 
         LoggingConfigurations loggingConfigurations = configurationManager.<LoggingConfigurations>get("logging")
             .orElseGet( () -> {
