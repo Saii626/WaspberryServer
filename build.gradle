@@ -10,7 +10,9 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'idea'
+    id 'idea' 
+    id 'org.hidetake.ssh' version '2.10.1'
+
 }
 
 apply plugin: 'org.springframework.boot'
@@ -40,4 +42,33 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.0.4.RELEASE'
 
+}
+
+String homeFolder = System.getProperty('user.home')
+
+remotes {
+    localNetwork {
+        host = '192.168.100.2'
+        user = 'pi'
+        identity = file("${homeFolder}/.ssh/id_rsa_openssh")
+        fileTransfer = "scp"
+    }
+}
+
+task deploy {
+    doLast {
+        ssh.run {
+            session(remotes.localNetwork) {
+                String serverDir = '/home/pi/Servers/javaDeploy'
+
+                put from: "$buildDir/libs/${bootJar.archiveName}", into: '/home/pi/Servers/javaDeploy'
+                put from: "$projectDir/start_server.sh", into: "$serverDir"
+                
+                execute("chmod +x $serverDir/start_server.sh")
+                execute("$serverDir/start_server.sh") { result ->
+                    print result
+                }
+            }
+        }
+    }
 }
