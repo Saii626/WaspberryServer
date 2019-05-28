@@ -33,7 +33,7 @@ then
     exit 1
 else
     echo "Starting new WaspberryServer" 
-    tmux send-keys 'java -jar ' $file C-m
+    tmux send-keys 'java -jar -Dspring.profile.active=waspberry' $file C-m
     tmux detach -s $SESSION_NAME
     echo "Done"
     exit 0
