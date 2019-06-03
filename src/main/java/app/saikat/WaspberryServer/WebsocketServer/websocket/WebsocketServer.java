@@ -1,4 +1,4 @@
-package app.saikat.WaspberryServer.NotifyServer.websocket;
+package app.saikat.WaspberryServer.WebsocketServer.websocket;
 
 import java.io.IOException;
 import java.net.URI;
@@ -20,8 +20,8 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import app.saikat.WaspberryServer.NotifyServer.models.Device;
-import app.saikat.WaspberryServer.NotifyServer.services.DeviceService;
+import app.saikat.WaspberryServer.WebsocketServer.models.Device;
+import app.saikat.WaspberryServer.WebsocketServer.services.DeviceService;
 
 
 @Component
@@ -90,9 +90,6 @@ public class WebsocketServer implements WebSocketHandler {
         logger.debug("Connected on path {}", uri.getPath());
 
         String deviceName = uri.getPath().substring(8);
-        if (deviceService == null) {
-            logger.error("device service null");
-        }
         Device device = deviceService.findDevice(deviceName);
 
         if (device != null) {
@@ -125,7 +122,6 @@ public class WebsocketServer implements WebSocketHandler {
             } else {
                 logger.error("How can we receive pong if no device with {} session exists?", session.getId());
             }
-            // handlePongMessage(session, (PongMessage) message);
         } else {
             throw new IllegalStateException("Unexpected WebSocket message type: " + message);
         }
@@ -151,9 +147,7 @@ public class WebsocketServer implements WebSocketHandler {
                 device.setSessionId(null);
                 deviceService.saveDevice(device);
             }
-        } else {
-            logger.error("How can we receive closeConnection if no device with {} session exists?", session.getId());
-        }
+        } 
     }
 
     @Override

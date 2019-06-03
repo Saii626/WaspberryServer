@@ -1,10 +1,10 @@
-package app.saikat.WaspberryServer.NotifyServer.services;
+package app.saikat.WaspberryServer.WebsocketServer.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import app.saikat.WaspberryServer.NotifyServer.models.Device;
-import app.saikat.WaspberryServer.NotifyServer.repositories.DeviceRepository;
+import app.saikat.WaspberryServer.WebsocketServer.models.Device;
+import app.saikat.WaspberryServer.WebsocketServer.repositories.DeviceRepository;
 
 @Service
 public class DeviceService {

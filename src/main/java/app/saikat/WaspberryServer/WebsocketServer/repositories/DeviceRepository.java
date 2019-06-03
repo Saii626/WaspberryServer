@@ -1,11 +1,11 @@
-package app.saikat.WaspberryServer.NotifyServer.repositories;
+package app.saikat.WaspberryServer.WebsocketServer.repositories;
 
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import app.saikat.WaspberryServer.NotifyServer.models.Device;
+import app.saikat.WaspberryServer.WebsocketServer.models.Device;
 
 @Repository
 public interface DeviceRepository extends JpaRepository<Device, UUID> {

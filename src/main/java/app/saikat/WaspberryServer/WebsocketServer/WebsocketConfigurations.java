@@ -1,4 +1,4 @@
-package app.saikat.WaspberryServer.NotifyServer;
+package app.saikat.WaspberryServer.WebsocketServer;
 
 public class WebsocketConfigurations {
 
