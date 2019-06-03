@@ -9,17 +9,11 @@ import com.google.gson.GsonBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-
-import app.saikat.ConfigurationManagement.ConfigurationManagerInstanceHandler;
-import app.saikat.ConfigurationManagement.interfaces.ConfigurationManager;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-// @ComponentScan(basePackages = "app.saikat.WaspberryServer")
+@EnableScheduling
 public class ServerApp {
-
-    
     
     public static void main(String[] args) throws IOException {
         SpringApplication.run(ServerApp.class, args);

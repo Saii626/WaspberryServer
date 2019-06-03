@@ -3,9 +3,6 @@ package app.saikat.WaspberryServer.ServerComponents.Logging;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Priority;
-
 public class LoggingConfigurations {
     private List<Appenders> enabledAppenders;
 
