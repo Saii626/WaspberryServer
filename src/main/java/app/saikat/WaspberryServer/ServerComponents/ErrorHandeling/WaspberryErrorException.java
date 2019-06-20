@@ -2,6 +2,8 @@ package app.saikat.WaspberryServer.ServerComponents.ErrorHandeling;
 
 import org.springframework.http.HttpStatus;
 
+import app.saikat.UrlManagement.ErrorObjects.WaspberryErrorObject;
+
 public class WaspberryErrorException extends RuntimeException {
 
     private static final long serialVersionUID = -6520421759403740921L;

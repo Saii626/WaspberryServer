@@ -5,11 +5,9 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import app.saikat.WaspberryServer.WebsocketServer.models.Device;
+import app.saikat.WaspberryServer.WebsocketServer.models.SocketMessage;
 
 @Repository
-public interface DeviceRepository extends JpaRepository<Device, UUID> {
+public interface SocketMessageRepository extends JpaRepository<SocketMessage, UUID> {
 
-    Device findByName(String name);
-    
 }

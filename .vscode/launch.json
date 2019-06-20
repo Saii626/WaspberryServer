@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - ServerApp",
+            "request": "launch",
+            "mainClass": "app.saikat.WaspberryServer.ServerApp",
+            "projectName": "WaspberryServer"
+        }
+    ]
+}

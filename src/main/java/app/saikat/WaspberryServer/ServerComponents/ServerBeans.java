@@ -21,16 +21,12 @@ public class ServerBeans {
 
     @Bean("gson")
     public Gson getGson() {
-        return new GsonBuilder()
-        .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-        .setPrettyPrinting()
-        .serializeNulls()
-        .create();
+        return ConfigurationManagerInstanceHandler.getGson();
     }
 
     @Bean("configurationManager")
     public ConfigurationManager getConfigurationManager() throws IOException {
         File configFile = new File("ServerConfigurations.txt");
-        return ConfigurationManagerInstanceHandler.createInstance(configFile, gson);
+        return ConfigurationManagerInstanceHandler.createInstance(configFile);
     }
 }

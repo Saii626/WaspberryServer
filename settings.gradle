@@ -6,7 +6,10 @@
  * Detailed information about configuring a multi-project build in Gradle can be found
  * in the user manual at https://docs.gradle.org/5.4.1/userguide/multi_project_builds.html
  */
-include ':ConfigurationManagement'
+include ':ConfigurationManagement', ':UrlManagement', ':Annotations', ':AnnotationProcessors'
+project(':Annotations').projectDir = file('../Annotations')
+project(':AnnotationProcessors').projectDir = file('../AnnotationProcessors')
 project(':ConfigurationManagement').projectDir = file('../ConfigurationManagement')
+project(':UrlManagement').projectDir = file('../UrlManagement')
 
 rootProject.name = 'WaspberryServer'

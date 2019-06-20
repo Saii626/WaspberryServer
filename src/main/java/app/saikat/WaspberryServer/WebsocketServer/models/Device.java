@@ -32,8 +32,8 @@ public class Device {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt = new Date();
 
-    @Column(name = "session_id")
-    private String sessionId;
+    @Column(name = "token")
+    private String token;
 
     @Column(name = "last_pong")
     @Temporal(TemporalType.TIMESTAMP)
@@ -55,8 +55,8 @@ public class Device {
         return name;
     }
 
-    public String sessionId() {
-        return sessionId;
+    public String getToken() {
+        return token;
     }
 
     public Date getLastPong() {
@@ -71,8 +71,8 @@ public class Device {
         this.name = name;
     }
 
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public void setLastPong(Timestamp lastPong) {

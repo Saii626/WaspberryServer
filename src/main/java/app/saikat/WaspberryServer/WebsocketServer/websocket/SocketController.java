@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import app.saikat.Annotations.ExportUrl;
+import app.saikat.UrlManagement.RequestObjects.AddDevice;
+import app.saikat.UrlManagement.ResponseObjects.CreatedDevice;
 import app.saikat.WaspberryServer.ServerComponents.ErrorHandeling.WaspberryErrorException;
 import app.saikat.WaspberryServer.WebsocketServer.WebsocketConfigurations;
 import app.saikat.WaspberryServer.WebsocketServer.models.Device;
@@ -28,13 +31,15 @@ public class SocketController {
         this.logger = logger;
     }
 
+    @ExportUrl(name = "ADD_DEVICE", url = "/addDevice")
     @PostMapping(name = "/addDevice")
-    public ResponseEntity<Device> addDevice(@RequestBody AddDeviceRequestBody body) {
+    public ResponseEntity<CreatedDevice> addDevice(@RequestBody AddDevice body) {
         if (configurations.isAddDeviceEnabled()) {
             try {
-                Device device = service.addDevice(body.getName());
+                Device device = service.addDevice(body.getName(), body.getToken());
                 logger.debug("Added device");
-                return ResponseEntity.status(HttpStatus.OK).body(device);
+
+                return ResponseEntity.status(HttpStatus.OK).body(new CreatedDevice(device.getId(), device.getName()));
             } catch (Exception e) {
                 logger.error("Error: ", e);
                 throw new WaspberryErrorException("addDevice", e.getMessage(), HttpStatus.CONFLICT);
@@ -45,4 +50,8 @@ public class SocketController {
         }
     }
 
+    // @PostMapping(name = "/send")
+    // public ResponseEntity< send(@RequestBody SendMessage message) {
+
+    // }
 }

@@ -2,6 +2,8 @@ package app.saikat.WaspberryServer.ServerComponents.Logging;
 
 import java.io.IOException;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
@@ -23,22 +25,13 @@ public class Log {
     @Autowired
     private ConfigurationManager configurationManager;
 
-    private void configugeLog4j() {
+    @PostConstruct
+    public void configugeLog4j() throws IOException {
         Logger rootLogger = Logger.getRootLogger();
         rootLogger.removeAllAppenders();
         rootLogger.setLevel(Level.ALL);
 
-        LoggingConfigurations loggingConfigurations = configurationManager.<LoggingConfigurations>get("logging")
-            .orElseGet( () -> {
-                LoggingConfigurations conf = LoggingConfigurations.getDefault();
-                configurationManager.put("logging", conf);
-                    try {
-                        configurationManager.syncConfigurations();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                return conf;
-            });
+        LoggingConfigurations loggingConfigurations = configurationManager.getOrSetDefault("logging", LoggingConfigurations.getDefault());
 
         if (loggingConfigurations.getEnabledAppenders().contains(Appenders.CONSOLE)) {
             ConsoleAppender consoleAppender = new CustomConsoleAppender();
@@ -69,16 +62,10 @@ public class Log {
         l.error("Testing error");
     }
 
-    private boolean isConfigured = false;
-
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     @DependsOn("configurationManager")
     public org.slf4j.Logger logger(InjectionPoint injectionPoint) {
-        if (!isConfigured) {
-            configugeLog4j();
-            isConfigured = true;
-        }
         return LoggerFactory.getLogger(injectionPoint.getMethodParameter().getContainingClass());
     }
 }
