@@ -46,10 +46,10 @@ public class LoggingConfigurations {
         configurations.enabledAppenders = appenders;
 
         configurations.consolLevel = "DEBUG";
-        configurations.consolePattern = "%d{dd-MM-yy HH:mm:ss:SSS} %5p %t %c{2}:%L - %m%n";
+        configurations.consolePattern = "%d{dd-MM-yy HH:mm:ss:SSS} %5p %t %c{2} - %m%n";
 
         configurations.fileLevel = "WARN";
-        configurations.filePattern = "%d{dd-MM-yy HH:mm:ss:SSS} %5p %t %c{2}:%L - %m%n";
+        configurations.filePattern = "%d{dd-MM-yy HH:mm:ss:SSS} %5p %t %c{2} - %m%n";
         configurations.fileName = "warn-log.log";
 
         return configurations;

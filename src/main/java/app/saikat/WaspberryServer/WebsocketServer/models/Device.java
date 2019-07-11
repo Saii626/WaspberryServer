@@ -11,12 +11,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.annotations.DynamicUpdate;
-
-import java.sql.Timestamp;
-
 @Entity
-@DynamicUpdate
 @Table(name = "devices")
 public class Device {
 
@@ -39,14 +34,6 @@ public class Device {
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastPong;
 
-    // public Device() {
-    //     this.id = UUID.randomUUID();
-    //     this.name = null;
-    //     this.createdAt = Timestamp.from(Instant.now());
-    //     this.sessionId = null;
-    //     this.lastPong = Timestamp.from(Instant.now());
-    // }
-
     public UUID getId() {
         return id;
     }
@@ -62,9 +49,13 @@ public class Device {
     public Date getLastPong() {
         return lastPong;
     }
-    
+
     public Date getCreatedAt() {
         return createdAt;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public void setName(String name) {
@@ -75,8 +66,23 @@ public class Device {
         this.token = token;
     }
 
-    public void setLastPong(Timestamp lastPong) {
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setLastPong(Date lastPong) {
         this.lastPong = lastPong;
     }
-    
+
+    public static Device getAnonymousDevice() {
+        Device anonymousDevice = new Device();
+        anonymousDevice.name = "Anonymous#" + anonymousDevice.hashCode();
+        return anonymousDevice;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[id: %s, name: %s, token: %s, created_at: %s, last_pong: %s]", id.toString(), name, token,
+                createdAt.toString(), lastPong.toString());
+    }
 }

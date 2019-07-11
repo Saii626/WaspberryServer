@@ -1,4 +1,4 @@
-package app.saikat.WaspberryServer.WebsocketServer.websocket;
+package app.saikat.WaspberryServer.WebsocketServer.unused_files;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityNotFoundException;
 
 import com.google.gson.Gson;
@@ -19,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.PingMessage;
 import org.springframework.web.socket.PongMessage;
@@ -28,7 +28,6 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import app.saikat.Annotations.WaspberryMessageHandler;
 import app.saikat.ConfigurationManagement.Gson.JsonObject;
 import app.saikat.UrlManagement.WebsocketMessages.Authentication;
 import app.saikat.WaspberryServer.WaspberryMessageHandlers;
@@ -39,7 +38,7 @@ import app.saikat.WaspberryServer.WebsocketServer.models.SocketMessageDirection;
 import app.saikat.WaspberryServer.WebsocketServer.services.DeviceService;
 import app.saikat.WaspberryServer.WebsocketServer.services.SocketMessageService;
 
-@Component
+// @Component
 public class WebsocketServer implements WebSocketHandler {
 
     @Autowired
@@ -57,20 +56,20 @@ public class WebsocketServer implements WebSocketHandler {
     @Autowired
     private WaspberryMessageHandlers handlers;
 
-    private Logger logger;
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // For authentication packet. Must receive within 60 sec after establishing
     // connection
-    private final Map<WebSocketSession, Long> awatingAuthPacketMap;
+    private Map<WebSocketSession, Long> awatingAuthPacketMap;
     private Thread authenticationPacketPoller;
 
     private Thread websocketHeartbeat;
-    private final Map<Device, WebSocketSession> socketSessionMap;
+    private Map<Device, WebSocketSession> socketSessionMap;
 
     private static WebsocketServer instance;
 
-    public WebsocketServer(Logger logger) {
-        this.logger = logger;
+    @PostConstruct
+    public void initialize() {
 
         // Initialize sessionMap and heartbeat and start thread
         socketSessionMap = new HashMap<>();
@@ -112,7 +111,7 @@ public class WebsocketServer implements WebSocketHandler {
                     for (Map.Entry<WebSocketSession, Long> entry : awatingAuthPacketMap.entrySet()) {
                         if (currentTime > (entry.getValue() + configurations.getMaxWaitForAuthPacket())) {
                             try {
-                                logger.info("Closing connection to {}", entry, sessionsToRemove);
+                                logger.info("Closing connection to {}. No auth packet received in time", entry, sessionsToRemove);
                                 entry.getKey().close(new CloseStatus(1008, "No auth packet received in time"));
                             } catch (IOException e) {
                                 logger.error("Error:", e);
@@ -124,7 +123,7 @@ public class WebsocketServer implements WebSocketHandler {
                     }
 
                     for (WebSocketSession session : sessionsToRemove) {
-                        logger.info("Removing session: {}", session.getId());
+                        logger.debug("Removing session: {}", session.getId());
                         this.awatingAuthPacketMap.remove(session);
                     }
                 }
@@ -295,7 +294,7 @@ public class WebsocketServer implements WebSocketHandler {
         return null;
     }
 
-    @WaspberryMessageHandler
+    // @WaspberryMessageHandler
     public static void handleAuthenticationMessage(WebSocketSession session, Authentication authObject) {
         if (instance != null) {
             synchronized (instance.awatingAuthPacketMap) {
