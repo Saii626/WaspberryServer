@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import app.saikat.UrlManagement.WebsocketMessages.ServerMessages.NotificationStatus;
+import app.saikat.PojoCollections.WebsocketMessages.ServerMessages.NotificationStatus;
 import app.saikat.WaspberryServer.NotifyServer.models.NotifyMessage;
 import app.saikat.WaspberryServer.NotifyServer.repositories.NotifyMessageRepository;
 import app.saikat.WaspberryServer.WebsocketServer.models.Device;

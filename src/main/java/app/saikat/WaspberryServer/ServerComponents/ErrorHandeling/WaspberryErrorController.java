@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import app.saikat.UrlManagement.ErrorObjects.WaspberryErrorObject;
+import app.saikat.PojoCollections.ErrorObjects.WaspberryErrorObject;
 
 @RestControllerAdvice
 public class WaspberryErrorController {

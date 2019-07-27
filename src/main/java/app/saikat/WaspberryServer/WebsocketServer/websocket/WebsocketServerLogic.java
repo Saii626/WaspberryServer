@@ -35,11 +35,11 @@ import org.springframework.stereotype.Component;
 
 import app.saikat.Annotations.WaspberryMessageHandler;
 import app.saikat.ConfigurationManagement.Gson.JsonObject;
-import app.saikat.UrlManagement.CommonObjects.Status;
-import app.saikat.UrlManagement.CommonObjects.Tuple;
-import app.saikat.UrlManagement.ErrorObjects.WaspberryErrorObject;
-import app.saikat.UrlManagement.WebsocketMessages.ClientMessages.Authentication;
-import app.saikat.UrlManagement.WebsocketMessages.ServerMessages.AuthenticationResponse;
+import app.saikat.PojoCollections.CommonObjects.Status;
+import app.saikat.PojoCollections.CommonObjects.Tuple;
+import app.saikat.PojoCollections.ErrorObjects.WaspberryErrorObject;
+import app.saikat.PojoCollections.WebsocketMessages.ClientMessages.Authentication;
+import app.saikat.PojoCollections.WebsocketMessages.ServerMessages.AuthenticationResponse;
 import app.saikat.WaspberryServer.WaspberryMessageHandlers;
 import app.saikat.WaspberryServer.WebsocketServer.WebsocketConfigurations;
 import app.saikat.WaspberryServer.WebsocketServer.models.Device;

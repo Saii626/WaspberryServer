@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import app.saikat.Annotations.ExportUrl;
 import app.saikat.Annotations.WaspberryMessageHandler;
-import app.saikat.UrlManagement.RequestObjects.AddDevice;
-import app.saikat.UrlManagement.ResponseObjects.CreatedDevice;
-import app.saikat.UrlManagement.WebsocketMessages.ClientMessages.GetDeviceList;
-import app.saikat.UrlManagement.WebsocketMessages.ServerMessages.DeviceList;
+import app.saikat.PojoCollections.RequestObjects.AddDevice;
+import app.saikat.PojoCollections.ResponseObjects.CreatedDevice;
+import app.saikat.PojoCollections.WebsocketMessages.ClientMessages.GetDeviceList;
+import app.saikat.PojoCollections.WebsocketMessages.ServerMessages.DeviceList;
 import app.saikat.WaspberryServer.ServerComponents.ErrorHandeling.WaspberryErrorException;
 import app.saikat.WaspberryServer.WebsocketServer.WebsocketConfigurations;
 import app.saikat.WaspberryServer.WebsocketServer.models.Device;

@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import app.saikat.UrlManagement.WebsocketMessages.ServerMessages.NotificationStatus;
+import app.saikat.PojoCollections.WebsocketMessages.ServerMessages.NotificationStatus;
 import app.saikat.WaspberryServer.NotifyServer.models.NotifyMessage;
 
 @Repository

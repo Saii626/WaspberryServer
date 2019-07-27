@@ -89,7 +89,7 @@ public class Device {
     @Override
     public String toString() {
         return String.format("[id: %s, name: %s, token: %s, created_at: %s, last_pong: %s]", id.toString(), name, token,
-                createdAt.toString(), lastPong.toString());
+                createdAt.toString(), (lastPong != null) ? lastPong.toString() : null);
     }
 
     @Transient

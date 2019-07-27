@@ -2,7 +2,7 @@ package app.saikat.WaspberryServer.ServerComponents.ErrorHandeling;
 
 import org.springframework.http.HttpStatus;
 
-import app.saikat.UrlManagement.ErrorObjects.WaspberryErrorObject;
+import app.saikat.PojoCollections.ErrorObjects.WaspberryErrorObject;
 
 public class WaspberryErrorException extends RuntimeException {
 

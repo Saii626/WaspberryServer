@@ -13,10 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import app.saikat.Annotations.WaspberryMessageHandler;
-import app.saikat.UrlManagement.CommonObjects.Tuple;
-import app.saikat.UrlManagement.WebsocketMessages.ClientMessages.NotifyDevices;
-import app.saikat.UrlManagement.WebsocketMessages.ServerMessages.Notification;
-import app.saikat.UrlManagement.WebsocketMessages.ServerMessages.NotificationStatus;
+import app.saikat.PojoCollections.CommonObjects.Tuple;
+import app.saikat.PojoCollections.WebsocketMessages.ClientMessages.NotifyDevices;
+import app.saikat.PojoCollections.WebsocketMessages.ServerMessages.Notification;
+import app.saikat.PojoCollections.WebsocketMessages.ServerMessages.NotificationStatus;
 import app.saikat.WaspberryServer.NotifyServer.models.NotifyMessage;
 import app.saikat.WaspberryServer.NotifyServer.services.NotifyMessageService;
 import app.saikat.WaspberryServer.WebsocketServer.models.Device;

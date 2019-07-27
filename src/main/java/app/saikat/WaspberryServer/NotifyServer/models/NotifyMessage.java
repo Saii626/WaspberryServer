@@ -12,8 +12,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import app.saikat.UrlManagement.WebsocketMessages.ServerMessages.Notification;
-import app.saikat.UrlManagement.WebsocketMessages.ServerMessages.NotificationStatus;
+import app.saikat.PojoCollections.WebsocketMessages.ServerMessages.Notification;
+import app.saikat.PojoCollections.WebsocketMessages.ServerMessages.NotificationStatus;
 
 @Entity
 @Table(name = "notify_messages")
