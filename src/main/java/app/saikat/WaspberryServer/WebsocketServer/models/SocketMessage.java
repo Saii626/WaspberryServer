@@ -37,7 +37,7 @@ public class SocketMessage {
     @Temporal(TemporalType.TIMESTAMP)
     private Date receivedAt = new Date();
 
-    @Column(name = "message")
+    @Column(name = "message", length = 5000)
     private String message;
 
     @Column(name = "session_id")

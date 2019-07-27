@@ -1,4 +1,4 @@
-package app.saikat.WaspberryServer.ServerComponents;
+package app.saikat.WaspberryServer;
 
 import java.io.File;
 import java.io.IOException;
