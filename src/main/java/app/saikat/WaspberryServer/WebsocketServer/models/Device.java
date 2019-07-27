@@ -9,7 +9,13 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
+
+import com.google.common.base.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Entity
 @Table(name = "devices")
@@ -85,4 +91,24 @@ public class Device {
         return String.format("[id: %s, name: %s, token: %s, created_at: %s, last_pong: %s]", id.toString(), name, token,
                 createdAt.toString(), lastPong.toString());
     }
+
+    @Transient
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Override
+    public boolean equals(Object obj) {
+        logger.debug("Equality checking {} to {}", obj, this);
+        if (obj instanceof Device) {
+            Device d = (Device) obj;
+            return id.equals(d.getId());
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        logger.debug("Hashing {}", this);
+        return Objects.hashCode(id);
+    }
+
 }

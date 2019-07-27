@@ -11,15 +11,15 @@ import javax.websocket.server.ServerEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ServerEndpoint(value = "/socket")
+@ServerEndpoint(value = "/socket", configurator = CustomEndpointConfigurator.class)
 public class NewWebsocket {
 
     private Session session;
     private WebsocketServerLogic websocketServer;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public NewWebsocket() {
-        websocketServer = WebsocketServerLogic.getInstance();
+    public NewWebsocket(WebsocketServerLogic websocketServer) {
+        this.websocketServer = websocketServer;
     }
 
     @OnOpen

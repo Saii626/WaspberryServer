@@ -1,5 +1,6 @@
 package app.saikat.WaspberryServer.WebsocketServer.websocket;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;
@@ -32,6 +33,10 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
 @Configuration  
 public class WebsocketConfig {  
+
+    @Autowired
+    private WebsocketServerLogic websocketServer;
+
     @Bean  
     public ServerEndpointExporter serverEndpointExporter(){  
         return new ServerEndpointExporter();  
@@ -39,6 +44,6 @@ public class WebsocketConfig {
 
     @Bean
     public NewWebsocket newWebsocket() {
-        return new NewWebsocket();
+        return new NewWebsocket(websocketServer);
     }
 } 

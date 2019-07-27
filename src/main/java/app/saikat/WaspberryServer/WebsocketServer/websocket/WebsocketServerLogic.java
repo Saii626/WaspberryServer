@@ -1,6 +1,7 @@
 package app.saikat.WaspberryServer.WebsocketServer.websocket;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
@@ -10,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -34,9 +36,10 @@ import org.springframework.stereotype.Component;
 import app.saikat.Annotations.WaspberryMessageHandler;
 import app.saikat.ConfigurationManagement.Gson.JsonObject;
 import app.saikat.UrlManagement.CommonObjects.Status;
+import app.saikat.UrlManagement.CommonObjects.Tuple;
 import app.saikat.UrlManagement.ErrorObjects.WaspberryErrorObject;
-import app.saikat.UrlManagement.WebsocketMessages.Authentication;
-import app.saikat.UrlManagement.WebsocketMessages.AuthenticationResponse;
+import app.saikat.UrlManagement.WebsocketMessages.ClientMessages.Authentication;
+import app.saikat.UrlManagement.WebsocketMessages.ServerMessages.AuthenticationResponse;
 import app.saikat.WaspberryServer.WaspberryMessageHandlers;
 import app.saikat.WaspberryServer.WebsocketServer.WebsocketConfigurations;
 import app.saikat.WaspberryServer.WebsocketServer.models.Device;
@@ -72,13 +75,16 @@ public class WebsocketServerLogic {
     private Thread websocketHeartbeat;
     private BiMap<Device, Session> socketSessionMap;
 
+    private List<WeakReference<OnDeviceConnectedListener>> deviceConnectedObservers;
+
     private Logger logger = LoggerFactory.getLogger(NewWebsocket.class);
 
     private static WebsocketServerLogic instance;
 
     public WebsocketServerLogic() {
         instance = this;
-        logger.warn("NewWebsocket instance created");
+
+        deviceConnectedObservers = new LinkedList<>();
     }
 
     public static WebsocketServerLogic getInstance() {
@@ -94,11 +100,11 @@ public class WebsocketServerLogic {
                 synchronized (this.socketSessionMap) {
                     for (Map.Entry<Device, Session> entry : socketSessionMap.entrySet()) {
                         try {
-                            logger.debug("pinging {}", entry.getKey().getName());
-                            entry.getValue().getAsyncRemote().sendPing(ByteBuffer.wrap(Instant.now().toString().getBytes()));
+                            logger.trace("pinging {}", entry.getKey().getName());
+                            entry.getValue().getAsyncRemote()
+                                    .sendPing(ByteBuffer.wrap(Instant.now().toString().getBytes()));
                         } catch (IOException e) {
-                            e.printStackTrace();
-                            logger.error("Error sending ping to {}", entry.getKey().getName());
+                            logger.error("Error: ", e);
                         }
 
                     }
@@ -123,7 +129,8 @@ public class WebsocketServerLogic {
 
                 synchronized (this.awatingAuthPacketMap) {
                     long currentTime = System.currentTimeMillis();
-                    logger.debug("Processing started at: {}", currentTime);
+                    logger.trace("Processing started at: {}", currentTime);
+
                     for (Map.Entry<Session, Long> entry : awatingAuthPacketMap.entrySet()) {
                         if (currentTime > (entry.getValue() + configurations.getMaxWaitForAuthPacket())) {
                             try {
@@ -203,54 +210,79 @@ public class WebsocketServerLogic {
     public void handleAuthenticationMessage(Session session, Authentication authObject) {
 
         logger.info("Handling Authentication from {}", session.getId());
-        if (instance != null) {
-            synchronized (instance.awatingAuthPacketMap) {
-                instance.awatingAuthPacketMap.remove(session);
+        synchronized (awatingAuthPacketMap) {
+            awatingAuthPacketMap.remove(session);
+        }
+        try {
+            Device device = deviceService.findById(authObject.getId());
+            if (device.getToken() != null && !device.getToken().equals(authObject.getToken())) {
+                throw new EntityNotFoundException("Wrong token");
             }
-            try {
-                Device device = instance.deviceService.findById(authObject.getId());
-                if (device.getToken() != null && !device.getToken().equals(authObject.getToken())) {
-                    throw new EntityNotFoundException("Wrong token");
-                }
 
-                device.setLastPong(new Date());
-                synchronized (instance.socketSessionMap) {
-                    instance.socketSessionMap.forcePut(device, session);
-                    AuthenticationResponse response = new AuthenticationResponse(Status.SUCCESS, null);
-                    try {
-                        send(session, response);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+            device.setLastPong(new Date());
+            synchronized (this.socketSessionMap) {
+                this.socketSessionMap.forcePut(device, session);
+                AuthenticationResponse response = new AuthenticationResponse(Status.SUCCESS, null);
+                try {
+                    send(session, response);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            synchronized (this.deviceConnectedObservers) {
+                ListIterator<WeakReference<OnDeviceConnectedListener>> it = this.deviceConnectedObservers.listIterator();
+
+                while(it.hasNext()) {
+                    WeakReference<OnDeviceConnectedListener> weakListener = it.next();
+                    if (weakListener.get() == null) {
+                        it.remove();
+                    } else {
+                        OnDeviceConnectedListener listener = weakListener.get();
+                        listener.onDeviceConnected(device);
                     }
                 }
-            } catch (EntityNotFoundException e) {
-                instance.logger.error("Error: ", e);
-                try {
-
-                    AuthenticationResponse response = new AuthenticationResponse(Status.FAILED, null);
-                    send(session, response);
-                    session.close(new CloseReason(CloseCodes.PROTOCOL_ERROR, "No such device. Un authorized"));
-                } catch (IOException e1) {
-                    instance.logger.error("Error: ", e1);
-                }
             }
-        } else {
-            logger.error("instance null. wtf??");
-        }
+        } catch (EntityNotFoundException e) {
+            logger.error("Error: ", e);
+            try {
 
+                AuthenticationResponse response = new AuthenticationResponse(Status.FAILED, null);
+                send(session, response);
+                session.close(new CloseReason(CloseCodes.PROTOCOL_ERROR, "No such device. Un authorized"));
+            } catch (IOException e1) {
+                logger.error("Error: ", e1);
+            }
+        }
     }
-    
+
     // Autowire WebsocketServer to required class and call this function to send
     // object to connected client
-    public <T> void send(Device toDevice, T object) throws IOException {
+    // a == b || (a != null && a.equals(b))
+    public <T> boolean send(Device toDevice, T object) {
         Session session = null;
 
         synchronized (this.socketSessionMap) {
             session = this.socketSessionMap.get(toDevice);
-        }
 
-        if (session != null) {
-            send(session, object);
+            if (session != null) {
+                try {
+                    send(session, object);
+                    return true;
+                } catch (IOException e) {
+                    logger.error("Error: {}", e);
+                }
+            } else {
+                logger.error("No such device in sessionMap");
+            }
+
+            return false;
+        }
+    }
+
+    public boolean isDeviceConnected(Device device) {
+        synchronized (this.socketSessionMap) {
+            return this.socketSessionMap.containsKey(device);
         }
     }
 
@@ -280,6 +312,7 @@ public class WebsocketServerLogic {
         synchronized (this.socketSessionMap) {
             device = this.socketSessionMap.inverse().get(session);
             if (device == null) {
+                logger.error("device not in session map");
                 return;
             }
         }
@@ -291,21 +324,22 @@ public class WebsocketServerLogic {
             Class<?> objectType = jsonObject.getObject().getClass();
             logger.info("Received {} from {}", objectType.getSimpleName(), session.getId());
 
-            List<WaspberryMessageHandlers.Tuple<Class<?>, String>> handlerList = handlers.getHandlers().get(objectType);
+            List<Tuple<Class<?>, String>> handlerList = handlers.getHandlers().get(objectType);
             if (handlerList == null || handlerList.isEmpty()) {
                 logger.warn("No handler found for handling websocket message of type {}", objectType.getName());
                 return;
             }
 
             // Loop through handlers and invoke methods
-            for (WaspberryMessageHandlers.Tuple<Class<?>, String> entry : handlerList) {
+            for (Tuple<Class<?>, String> entry : handlerList) {
                 try {
 
                     Object obj = context.getBean(entry.first);
                     try {
                         Method method = entry.first.getDeclaredMethod(entry.second, objectType);
                         // - method(Object message)
-                        logger.debug("Invoking {}, class: {}, withObj: {}", entry.second, entry.first.getSimpleName(), obj);
+                        logger.debug("Invoking {}, class: {}, withObj: {}", entry.second, entry.first.getSimpleName(),
+                                obj);
                         method.invoke(obj, jsonObject.getObject());
                         return;
                     } catch (NoSuchMethodException e) {
@@ -314,8 +348,9 @@ public class WebsocketServerLogic {
                     try {
                         Method method = entry.first.getDeclaredMethod(entry.second, Session.class, objectType);
                         // - method(WebSocketSession session, Object message)
-                        logger.debug("Invoking {}, class: {}, firstParam: {}, secondParam: {}, withObj: {}", entry.second,
-                                entry.first.getSimpleName(), Session.class.getSimpleName(), objectType.getSimpleName(), obj);
+                        logger.debug("Invoking {}, class: {}, firstParam: {}, secondParam: {}, withObj: {}",
+                                entry.second, entry.first.getSimpleName(), Session.class.getSimpleName(),
+                                objectType.getSimpleName(), obj);
                         method.invoke(obj, session, jsonObject.getObject());
                         return;
                     } catch (NoSuchMethodException e) {
@@ -324,8 +359,9 @@ public class WebsocketServerLogic {
                     try {
                         Method method = entry.first.getDeclaredMethod(entry.second, Device.class, objectType);
                         // - method(Device device, Object message)
-                        logger.debug("Invoking {}, class: {}, firstParam: {}, secondParam: {}, withObj: {}", entry.second,
-                                entry.first.getSimpleName(), Device.class.getSimpleName(), objectType.getSimpleName(), obj);
+                        logger.debug("Invoking {}, class: {}, firstParam: {}, secondParam: {}, withObj: {}",
+                                entry.second, entry.first.getSimpleName(), Device.class.getSimpleName(),
+                                objectType.getSimpleName(), obj);
                         method.invoke(obj, device, jsonObject.getObject());
                         return;
                     } catch (NoSuchMethodError e) {
@@ -364,5 +400,11 @@ public class WebsocketServerLogic {
 
     public void onError(Throwable error, Session session) {
         logger.error("Error in " + session.getId(), error);
+    }
+
+    public void addOnDeviceConnectedListener(OnDeviceConnectedListener listener) {
+        synchronized (this.deviceConnectedObservers) {
+            this.deviceConnectedObservers.add(new WeakReference<>(listener));
+        }
     }
 }

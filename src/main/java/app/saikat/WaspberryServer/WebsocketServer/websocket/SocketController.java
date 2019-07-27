@@ -1,5 +1,8 @@
 package app.saikat.WaspberryServer.WebsocketServer.websocket;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,8 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import app.saikat.Annotations.ExportUrl;
+import app.saikat.Annotations.WaspberryMessageHandler;
 import app.saikat.UrlManagement.RequestObjects.AddDevice;
 import app.saikat.UrlManagement.ResponseObjects.CreatedDevice;
+import app.saikat.UrlManagement.WebsocketMessages.ClientMessages.GetDeviceList;
+import app.saikat.UrlManagement.WebsocketMessages.ServerMessages.DeviceList;
 import app.saikat.WaspberryServer.ServerComponents.ErrorHandeling.WaspberryErrorException;
 import app.saikat.WaspberryServer.WebsocketServer.WebsocketConfigurations;
 import app.saikat.WaspberryServer.WebsocketServer.models.Device;
@@ -21,6 +27,9 @@ public class SocketController {
 
     @Autowired
     private DeviceService service;
+
+    @Autowired
+    private WebsocketServerLogic websocketServer;
 
     @Autowired
     private WebsocketConfigurations configurations;
@@ -50,6 +59,15 @@ public class SocketController {
         }
     }
 
+    @WaspberryMessageHandler
+    public void getDeviceList(Device sourceDevice, GetDeviceList getDeviceList) {
+        List<Device> devices = service.getAllDevices();
+
+        List<CreatedDevice> createdDevices = devices.stream()
+                .map(device -> new CreatedDevice(device.getId(), device.getName())).collect(Collectors.toList());
+                
+        websocketServer.send(sourceDevice, new DeviceList(createdDevices));
+    }
     // @PostMapping(name = "/send")
     // public ResponseEntity< send(@RequestBody SendMessage message) {
 

@@ -1,10 +1,10 @@
 package app.saikat.WaspberryServer.WebsocketServer.services;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import app.saikat.WaspberryServer.WebsocketServer.models.Device;
 import app.saikat.WaspberryServer.WebsocketServer.repositories.DeviceRepository;
@@ -30,8 +30,11 @@ public class DeviceService {
         return deviceRepository.findByName(name);
     }
 
-    @Transactional(readOnly = true)
     public Device findById(UUID id) {
         return deviceRepository.getOne(id);
+    }
+
+    public List<Device> getAllDevices() {
+        return deviceRepository.findAll();
     }
 }
